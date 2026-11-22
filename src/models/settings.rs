@@ -6,7 +6,15 @@ pub struct General {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default_method: Option<ShadowsocksMethods>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub on_hold_timeout_action: Option<OnHoldTimeoutAction>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub custom_variables: Option<Vec<CustomVariable>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub usage: Option<UsageSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub node_health: Option<NodeHealthSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stop_nodes_on_shutdown: Option<bool>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -152,6 +160,8 @@ pub struct SettingsSchema {
     pub hwid: Option<HWIDSettings>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub general: Option<General>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cleanup: Option<CleanupSettings>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -202,6 +212,55 @@ pub struct Webhook {
 pub struct WebhookInfo {
     pub url: String,
     pub secret: String,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct UsageSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub record_node_usage: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub record_node_stats: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reset_usage_clean_chart_data: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub record_outbound_usage: Option<bool>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct NodeHealthSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fail_threshold: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recover_threshold: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub probe_timeout: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_backoff: Option<i64>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+/// Automatic retention periods. `None` keeps the corresponding data indefinitely.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CleanupSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expired_users_retention_days: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub include_limited_users: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub usage_history_retention_days: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub node_stats_retention_days: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub usage_rollup_hourly_after_days: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub usage_rollup_half_day_after_days: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub usage_rollup_daily_after_days: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,
 }

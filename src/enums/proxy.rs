@@ -83,3 +83,14 @@ str_enum!(
         XtlsRprxVision => "xtls-rprx-vision",
     }
 );
+
+str_enum!(
+    /// Link format used for MTProto hosts in subscriptions.
+    MtprotoLinkType {
+        Auto => "auto",
+        Tls => "tls",
+        Secure => "secure",
+        Classic => "classic",
+        Web => "web",
+    }
+);

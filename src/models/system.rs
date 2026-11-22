@@ -7,6 +7,10 @@ pub struct InboundSummary {
     pub protocol: String,
     #[serde(default)]
     pub network: Option<String>,
+    #[serde(default)]
+    pub security: Option<String>,
+    #[serde(default)]
+    pub fingerprint: Option<String>,
     #[serde(flatten)]
     pub extra: Extra,
 }

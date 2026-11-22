@@ -36,6 +36,8 @@ pub struct CoreResponse {
     pub fallbacks_inbound_tags: Vec<String>,
     pub id: i64,
     pub created_at: PanelDateTime,
+    #[serde(default = "default_some_zero", skip_serializing_if = "Option::is_none")]
+    pub sort_order: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,
 }

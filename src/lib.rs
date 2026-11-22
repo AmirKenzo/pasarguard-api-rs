@@ -11,6 +11,9 @@ pub mod models;
 pub mod query;
 mod secret;
 
+/// PasarGuard panel OpenAPI version this crate is synced with.
+pub const OPENAPI_VERSION: &str = "5.6.0";
+
 pub use client::{
     HttpOptions, PanelClient, build_http_client, build_http_client_with, shared_http_client,
 };

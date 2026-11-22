@@ -65,6 +65,28 @@ impl PanelClient {
         .await
     }
 
+    /// Retrieve usage per outbound tag, over all nodes or one, within a date range.
+    pub async fn get_outbound_usage(
+        &self,
+        params: &UsageParams,
+    ) -> PanelResult<NodeOutboundUsageStatsList> {
+        self.call(
+            Method::GET,
+            "/api/node/usage/outbounds",
+            usage_query(params),
+            Body::None,
+        )
+        .await
+    }
+
+    /// Persist the display order of nodes.
+    pub async fn reorder_nodes(&self, ordered_ids: &[i64]) -> PanelResult<()> {
+        let body = json_body(&ReorderRequest::new(ordered_ids.to_vec()))?;
+        self.send(Method::PUT, "/api/nodes/order", Query::new(), body, true)
+            .await
+            .map(|_| ())
+    }
+
     /// Get user count metric statistics (online, expired or limited users) over time.
     pub async fn get_user_count_metric(
         &self,

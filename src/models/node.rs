@@ -240,6 +240,8 @@ pub struct NodeResponse {
     pub lifetime_downlink: Option<i64>,
     #[serde(default)]
     pub core_version: Option<String>,
+    #[serde(default = "default_some_zero")]
+    pub sort_order: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -285,6 +287,8 @@ pub struct NodeSimple {
     pub id: i64,
     pub name: String,
     pub status: NodeStatus,
+    #[serde(default)]
+    pub core_config_id: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -371,6 +375,30 @@ pub struct UserIPList {
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct UserIPListAll {
     pub nodes: HashMap<String, Option<UserIPList>>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct NodeOutboundUsageStat {
+    pub period_start: PanelDateTime,
+    pub uplink: i64,
+    pub downlink: i64,
+    #[serde(default)]
+    pub node_id: Option<i64>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+/// Usage per outbound tag; the key is the tag. With `group_by_node` each stat also
+/// carries its `node_id`.
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct NodeOutboundUsageStatsList {
+    #[serde(default)]
+    pub period: Option<Period>,
+    pub start: PanelDateTime,
+    pub end: PanelDateTime,
+    pub stats: HashMap<String, Vec<NodeOutboundUsageStat>>,
     #[serde(flatten)]
     pub extra: Extra,
 }

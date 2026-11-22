@@ -140,6 +140,10 @@ pub struct Subscription {
     pub randomize_order: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub custom_variables: Option<Vec<CustomVariable>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub header_placement: Option<HeaderPlacement>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clients_limit: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,
 }

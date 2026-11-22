@@ -4,17 +4,30 @@ Typed async Rust client for the [PasarGuard](https://github.com/PasarGuard/panel
 built on `reqwest` and `serde`.
 
 It is a full port of the Python client
-[`pasarguard`](https://github.com/AmirKenzo/pasarguard_api) 2.4.0: every endpoint method
-(users, admins, roles, API keys, nodes, cores, hosts, groups, templates, subscriptions,
-settings, system) and every model, with the same method names and JSON field names.
+[`pasarguard`](https://github.com/AmirKenzo/pasarguard_api) 2.5.0: every endpoint method
+(users, admins, roles, API keys, passkeys, nodes, cores, hosts, groups, templates,
+subscriptions, settings, system) and every model, with the same method names and JSON
+field names.
 
 ## Install
 
 ```toml
 [dependencies]
-pasarguard-api = { git = "https://github.com/AmirKenzo/pasarguard-api-rs", tag = "v0.1.0" }
+pasarguard-api = { git = "https://github.com/AmirKenzo/pasarguard-api-rs", tag = "v0.2.0" }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
+
+## Panel version support
+
+Each crate release is synced with one PasarGuard panel OpenAPI spec and fully supports that
+panel version. Newer panels usually keep working (unknown fields land in `extra`), but
+endpoints and fields added after that version are not covered.
+`pasarguard_api::OPENAPI_VERSION` tells you which panel version the crate targets.
+
+| Crate version | PasarGuard panel (OpenAPI) | Python client |
+|---|---|---|
+| `0.2.0` | `5.6.0` | `2.5.0` |
+| `0.1.0` | `5.2.1` | `2.4.0` |
 
 ## Quick start
 

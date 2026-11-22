@@ -104,3 +104,57 @@ fn list_query_params_repeat_the_key() {
         .opt("limit", Some(10_i64));
     assert_eq!(query.encode(), "status=active&status=on_hold&limit=10");
 }
+
+#[test]
+fn xmux_input_sends_camel_case_keys() {
+    let body = serde_json::to_value(XMuxSettingsInput {
+        max_concurrency: Some("16-32".into()),
+        h_keep_alive_period: Some(30),
+        ..XMuxSettingsInput::default()
+    })
+    .unwrap();
+    assert_eq!(
+        body,
+        json!({ "maxConcurrency": "16-32", "hKeepAlivePeriod": 30 })
+    );
+    let decoded: XMuxSettingsInput =
+        serde_json::from_value(json!({ "max_connections": 4 })).unwrap();
+    assert_eq!(decoded.max_connections, Some(StrOrInt::Int(4)));
+}
+
+#[test]
+fn host_ech_settings_are_grouped_per_client() {
+    let host: BaseHost = serde_json::from_value(json!({
+        "remark": "de",
+        "priority": 1,
+        "ech": { "xray": { "config_list": "abc", "query_strategy": "half" } }
+    }))
+    .unwrap();
+    let xray = host.ech.unwrap().xray.unwrap();
+    assert_eq!(xray.config_list.as_deref(), Some("abc"));
+    assert_eq!(xray.query_strategy, Some(ECHQueryStrategy::Half));
+}
+
+#[test]
+fn users_list_items_carry_hwid_count() {
+    let users: UsersResponse = serde_json::from_value(json!({
+        "users": [{
+            "id": 1,
+            "username": "alice",
+            "status": "active",
+            "used_traffic": 0,
+            "created_at": "2025-01-02T03:04:05",
+            "hwid_count": 2
+        }],
+        "total": 1
+    }))
+    .unwrap();
+    assert_eq!(users.users[0].hwid_count, Some(2));
+    assert!(users.users[0].extra.get("hwid_count").is_none());
+}
+
+#[test]
+fn reorder_request_body() {
+    let body = serde_json::to_value(ReorderRequest::new(vec![3, 1, 2])).unwrap();
+    assert_eq!(body, json!({ "ordered_ids": [3, 1, 2] }));
+}

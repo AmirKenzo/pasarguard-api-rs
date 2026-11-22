@@ -14,6 +14,10 @@ pub struct APIKeyCreate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expire_date: Option<PanelDateTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_requests: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub delete_on_limit: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub admin_id: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,
@@ -40,6 +44,12 @@ pub struct APIKeyCreateResponse {
     pub status: Option<APIKeyStatus>,
     #[serde(default = "default_some_false")]
     pub is_expired: Option<bool>,
+    #[serde(default)]
+    pub max_requests: Option<i64>,
+    #[serde(default = "default_some_zero")]
+    pub request_count: Option<i64>,
+    #[serde(default = "default_some_false")]
+    pub delete_on_limit: Option<bool>,
     pub api_key: String,
     #[serde(flatten)]
     pub extra: Extra,
@@ -66,6 +76,12 @@ pub struct APIKeyResponse {
     pub status: Option<APIKeyStatus>,
     #[serde(default = "default_some_false")]
     pub is_expired: Option<bool>,
+    #[serde(default)]
+    pub max_requests: Option<i64>,
+    #[serde(default = "default_some_zero")]
+    pub request_count: Option<i64>,
+    #[serde(default = "default_some_false")]
+    pub delete_on_limit: Option<bool>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -90,6 +106,10 @@ pub struct APIKeyUpdate {
     pub expire_date: Option<PanelDateTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<APIKeyStatus>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_requests: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub delete_on_limit: Option<bool>,
     #[serde(flatten)]
     pub extra: Extra,
 }

@@ -125,9 +125,15 @@ pub struct UserResponse {
     pub subscription_url: Option<String>,
     #[serde(default)]
     pub admin: Option<AdminBase>,
+    /// Only filled in list responses (`GET /api/users`).
+    #[serde(default)]
+    pub hwid_count: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,
 }
+
+/// Item of [`UsersResponse::users`]; the panel's `UserListItem` is a `UserResponse` plus `hwid_count`.
+pub type UserListItem = UserResponse;
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct UsersResponse {
@@ -346,7 +352,7 @@ pub struct UserCountMetricStatsList {
     pub metric: UserCountMetric,
     #[serde(deserialize_with = "ordered_entries")]
     pub stats: Vec<(String, Vec<UserCountMetricStat>)>,
-    #[serde(default)]
+    #[serde(default = "default_some_zero")]
     pub count_during_period: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,

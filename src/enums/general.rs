@@ -56,3 +56,20 @@ str_enum!(
         Override => "override",
     }
 );
+
+str_enum!(
+    HeaderPlacement {
+        Header => "header",
+        BodyStart => "body_start",
+        BodyEnd => "body_end",
+    }
+);
+
+str_enum!(
+    /// What happens to an on-hold user when its on-hold timeout passes.
+    OnHoldTimeoutAction {
+        Activate => "activate",
+        Disable => "disable",
+        Delete => "delete",
+    }
+);

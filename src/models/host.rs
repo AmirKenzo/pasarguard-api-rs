@@ -67,9 +67,7 @@ pub struct BaseHost {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<Vec<UserStatus>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub ech_config_list: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub ech_query_strategy: Option<ECHQueryStrategy>,
+    pub ech: Option<ECHSettings>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pinned_peer_cert_sha256: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -157,9 +155,7 @@ pub struct CreateHost {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<Vec<UserStatus>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub ech_config_list: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub ech_query_strategy: Option<ECHQueryStrategy>,
+    pub ech: Option<ECHSettings>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pinned_peer_cert_sha256: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -217,3 +213,38 @@ pub type HostsModel = Vec<CreateHost>;
 pub type HostBase = CreateHost;
 
 pub type HostResponse = BaseHost;
+
+/// Xray-specific ECH settings.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct XrayECHSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub config_list: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub query_strategy: Option<ECHQueryStrategy>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+/// ECH settings shared by Mihomo and sing-box clients.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ClientECHSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub config: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub query_server_name: Option<String>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+/// Per-client ECH settings stored together on a host.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ECHSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub xray: Option<XrayECHSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mihomo: Option<ClientECHSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sing_box: Option<ClientECHSettings>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}

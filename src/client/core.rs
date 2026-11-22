@@ -75,6 +75,14 @@ impl PanelClient {
         .await
     }
 
+    /// Persist the display order of core configurations.
+    pub async fn reorder_core_configs(&self, ordered_ids: &[i64]) -> PanelResult<()> {
+        let body = json_body(&ReorderRequest::new(ordered_ids.to_vec()))?;
+        self.send(Method::PUT, "/api/cores/order", Query::new(), body, true)
+            .await
+            .map(|_| ())
+    }
+
     /// Restart the nodes that use a core configuration.
     pub async fn restart_core(&self, core_id: i64) -> PanelResult<()> {
         self.call_unit(

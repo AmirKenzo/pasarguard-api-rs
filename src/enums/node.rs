@@ -28,6 +28,7 @@ str_enum!(
     UsageTable {
         NodeUserUsages => "node_user_usages",
         NodeUsages => "node_usages",
+        NodeOutboundUsages => "node_outbound_usages",
     }
 );
 

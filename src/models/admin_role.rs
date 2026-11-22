@@ -164,6 +164,8 @@ pub struct AdminsPermissions {
     pub delete: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reset_usage: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub passkeys: Option<bool>,
     #[serde(flatten)]
     pub extra: Extra,
 }

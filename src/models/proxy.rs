@@ -101,6 +101,10 @@ pub struct ProxyTable {
     pub wireguard: Option<WireGuardSettings>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hysteria: Option<HysteriaSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub masque: Option<MasqueSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mtproto: Option<MtprotoSettings>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -281,6 +285,12 @@ pub struct TransportSettingsInput {
     pub tcp_settings: Option<TcpSettings>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub websocket_settings: Option<WebSocketSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub masque_settings: Option<MasqueHostSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mtproto_settings: Option<MtprotoHostSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub xdrive_settings: Option<XDriveHostSettings>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -297,6 +307,12 @@ pub struct TransportSettingsOutput {
     pub tcp_settings: Option<TcpSettings>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub websocket_settings: Option<WebSocketSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub masque_settings: Option<MasqueHostSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mtproto_settings: Option<MtprotoHostSettings>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub xdrive_settings: Option<XDriveHostSettings>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -414,19 +430,50 @@ pub struct XHttpSettingsOutput {
     pub extra: Extra,
 }
 
+/// Sent with the panel's camelCase keys; snake_case keys are still accepted when decoding.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct XMuxSettingsInput {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "maxConcurrency",
+        alias = "max_concurrency",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_concurrency: Option<StrOrInt>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "maxConnections",
+        alias = "max_connections",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_connections: Option<StrOrInt>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "cMaxReuseTimes",
+        alias = "c_max_reuse_times",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub c_max_reuse_times: Option<StrOrInt>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "hMaxReusableSecs",
+        alias = "h_max_reusable_secs",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub h_max_reusable_secs: Option<StrOrInt>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "hMaxRequestTimes",
+        alias = "h_max_request_times",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub h_max_request_times: Option<StrOrInt>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "hKeepAlivePeriod",
+        alias = "h_keep_alive_period",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub h_keep_alive_period: Option<i64>,
     #[serde(flatten)]
     pub extra: Extra,
@@ -485,6 +532,13 @@ pub struct XrayFragmentSettings {
     pub packets: String,
     pub length: String,
     pub interval: String,
+    #[serde(
+        default,
+        rename = "maxSplit",
+        alias = "max_split",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub max_split: Option<String>,
     #[serde(flatten)]
     pub extra: Extra,
 }
@@ -552,3 +606,51 @@ pub struct XrayNoiseSettings {
 pub type ProxySettings = ProxyTable;
 
 pub type VmessSettings = VMessSettings;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MasqueSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub password: Option<String>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MasqueHostSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remote_dns: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub xmux: Option<XMuxSettingsOutput>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MtprotoSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub secret: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub user_ad_tag: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_tcp_conns: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_unique_ips: Option<i64>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MtprotoHostSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub link_type: Option<MtprotoLinkType>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct XDriveHostSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub xmux: Option<XMuxSettingsOutput>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}

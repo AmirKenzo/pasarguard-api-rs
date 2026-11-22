@@ -25,6 +25,7 @@ pub struct GetUsersParams {
     pub no_data_limit: Option<bool>,
     pub no_expire: Option<bool>,
     pub load_sub: Option<bool>,
+    pub no_group: Option<bool>,
 }
 
 impl Default for GetUsersParams {
@@ -53,6 +54,7 @@ impl Default for GetUsersParams {
             no_data_limit: Some(false),
             no_expire: Some(false),
             load_sub: Some(false),
+            no_group: Some(false),
         }
     }
 }
@@ -87,6 +89,9 @@ impl Default for GetUsersSimpleParams {
 pub enum ExpiredUsersTarget {
     Expired,
     Limited,
+    OnHold,
+    Disabled,
+    Inactive,
 }
 
 impl ExpiredUsersTarget {
@@ -94,6 +99,9 @@ impl ExpiredUsersTarget {
         match self {
             Self::Expired => "expired",
             Self::Limited => "limited",
+            Self::OnHold => "on_hold",
+            Self::Disabled => "disabled",
+            Self::Inactive => "inactive",
         }
     }
 }
@@ -116,6 +124,8 @@ pub struct ExpiredUsersParams {
     pub target: Option<ExpiredUsersTarget>,
     pub expired_after: Option<PanelDateTime>,
     pub expired_before: Option<PanelDateTime>,
+    /// Only report what would be removed (honoured by the panel on `DELETE`).
+    pub dry_run: Option<bool>,
 }
 
 impl Default for ExpiredUsersParams {
@@ -125,6 +135,7 @@ impl Default for ExpiredUsersParams {
             target: Some(ExpiredUsersTarget::Expired),
             expired_after: None,
             expired_before: None,
+            dry_run: Some(false),
         }
     }
 }
@@ -134,6 +145,29 @@ pub struct GetUsersSubUpdateChartParams {
     pub user_id: Option<i64>,
     pub username: Option<String>,
     pub admin_id: Option<i64>,
+    pub period: Option<Period>,
+    pub start: Option<PanelDateTime>,
+    pub end: Option<PanelDateTime>,
+}
+
+/// Filters for [`PanelClient::get_users_usage_with`].
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct UsersUsageParams {
+    pub usage: UsageParams,
+    pub admin: Option<Vec<String>>,
+    pub core_id: Option<i64>,
+    pub group_by_admin: Option<bool>,
+}
+
+impl Default for UsersUsageParams {
+    fn default() -> Self {
+        Self {
+            usage: UsageParams::default(),
+            admin: None,
+            core_id: None,
+            group_by_admin: Some(false),
+        }
+    }
 }
 
 fn expired_users_query(params: &ExpiredUsersParams) -> Query {
@@ -142,6 +176,7 @@ fn expired_users_query(params: &ExpiredUsersParams) -> Query {
         .opt("target", params.target)
         .opt("expired_after", params.expired_after.as_ref())
         .opt("expired_before", params.expired_before.as_ref())
+        .opt("dry_run", params.dry_run)
 }
 
 fn page_query(params: &PageParams) -> Query {
@@ -355,7 +390,8 @@ impl PanelClient {
             .opt("online", p.online)
             .opt("no_data_limit", p.no_data_limit)
             .opt("no_expire", p.no_expire)
-            .opt("load_sub", p.load_sub);
+            .opt("load_sub", p.load_sub)
+            .opt("no_group", p.no_group);
         self.call(Method::GET, "/api/users", query, Body::None)
             .await
     }
@@ -580,7 +616,10 @@ impl PanelClient {
         let query = Query::new()
             .opt("user_id", params.user_id)
             .opt("username", params.username.as_deref())
-            .opt("admin_id", params.admin_id);
+            .opt("admin_id", params.admin_id)
+            .opt("period", params.period)
+            .opt("start", params.start.as_ref())
+            .opt("end", params.end.as_ref());
         self.call(
             Method::GET,
             "/api/users/sub_update/chart",
@@ -706,6 +745,20 @@ impl PanelClient {
         admin: Option<&[String]>,
     ) -> PanelResult<UserUsageStatsList> {
         let query = usage_query(params).list("admin", admin);
+        self.call(Method::GET, "/api/users/usage", query, Body::None)
+            .await
+    }
+
+    /// Get the aggregated traffic usage of all users with every panel filter
+    /// (admins, core, grouping by admin).
+    pub async fn get_users_usage_with(
+        &self,
+        params: &UsersUsageParams,
+    ) -> PanelResult<UserUsageStatsList> {
+        let query = usage_query(&params.usage)
+            .list("admin", params.admin.as_deref())
+            .opt("core_id", params.core_id)
+            .opt("group_by_admin", params.group_by_admin);
         self.call(Method::GET, "/api/users/usage", query, Body::None)
             .await
     }

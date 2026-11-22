@@ -260,3 +260,20 @@ pub struct ValidationError {
     #[serde(flatten)]
     pub extra: Extra,
 }
+
+/// Body of the `PUT /api/nodes/order` and `PUT /api/cores/order` endpoints.
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+pub struct ReorderRequest {
+    pub ordered_ids: Vec<i64>,
+    #[serde(flatten)]
+    pub extra: Extra,
+}
+
+impl ReorderRequest {
+    pub fn new(ordered_ids: Vec<i64>) -> Self {
+        Self {
+            ordered_ids,
+            extra: Extra::new(),
+        }
+    }
+}

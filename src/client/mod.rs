@@ -336,6 +336,7 @@ mod groups;
 mod host;
 mod node;
 mod params;
+mod passkey;
 mod settings;
 mod setup;
 mod subscription;
